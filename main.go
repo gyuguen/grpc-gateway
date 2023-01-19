@@ -14,8 +14,14 @@ var (
 func main() {
 	flag.Parse()
 
-	_, err := rpc.Serve(*grpcPort, 8080)
+	errCh := make(chan error)
+
+	err := rpc.Serve(*grpcPort, 8080, errCh)
 	if err != nil {
+		log.Errorf("Err: %w", err)
+	}
+
+	if err := <-errCh; err != nil {
 		log.Errorf("Err: %w", err)
 	}
 }
