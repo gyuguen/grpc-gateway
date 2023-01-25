@@ -42,7 +42,7 @@ func serverGRPC(port int, errCh chan error) error {
 				&grpcLimiter{limiter: limiter},
 			),
 		),
-		grpc.ConnectionTimeout(time.Millisecond*222),
+		grpc.ConnectionTimeout(time.Second),
 	)
 
 	pb.RegisterEcoServiceServer(svr, &EchoServer{})

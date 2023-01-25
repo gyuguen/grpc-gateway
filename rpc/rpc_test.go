@@ -3,6 +3,7 @@ package rpc
 import (
 	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -37,7 +38,8 @@ func TestLimiter(t *testing.T) {
 	log.Info("success run grpc and rest")
 
 	resultChannels := sendGrpc(20)
-	resultChannels = append(resultChannels, sendRest(20)...)
+	//resultChannels := sendRest(1)
+	//resultChannels := append(resultChannels, sendRest(20)...)
 
 	var results []Result
 
@@ -125,7 +127,43 @@ func sendRest(count int) []chan Result {
 			reqBody := bytes.NewBufferString(body)
 			log.Infof("[Rest] %d request exceed", i)
 			reqTm := time.Now()
-			_, err := http.Post("http://localhost:8080", "application/json", reqBody)
+			req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/v1/echo", reqBody)
+			if err != nil {
+				c <- Result{
+					ty:    "rest",
+					idx:   i,
+					reqTm: reqTm,
+					rcvTm: time.Now(),
+					err:   err,
+				}
+				return
+			}
+			req.Header["Authorization"] = []string{"tests"}
+			cli := http.Client{}
+			resp, err := cli.Do(req)
+			if err != nil {
+				c <- Result{
+					ty:    "rest",
+					idx:   i,
+					reqTm: reqTm,
+					rcvTm: time.Now(),
+					err:   err,
+				}
+				return
+			}
+			res, err := io.ReadAll(resp.Body)
+			if err != nil {
+				c <- Result{
+					ty:    "rest",
+					idx:   i,
+					reqTm: reqTm,
+					rcvTm: time.Now(),
+					err:   err,
+				}
+				return
+			}
+			log.Infof("Res: %s", string(res))
+			//_, err := http.Post("http://localhost:8080", "application/json", reqBody)
 			log.Infof("[Rest] %d received", i)
 			c <- Result{
 				ty:    "rest",

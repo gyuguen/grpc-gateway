@@ -83,6 +83,9 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "barear": {
+          "type": "string"
         }
       },
       "description": "The request message containing the user's name."
