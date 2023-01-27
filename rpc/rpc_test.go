@@ -37,9 +37,9 @@ func TestLimiter(t *testing.T) {
 
 	log.Info("success run grpc and rest")
 
-	resultChannels := sendGrpc(20)
+	resultChannels := sendGrpc(5)
 	//resultChannels := sendRest(1)
-	//resultChannels := append(resultChannels, sendRest(20)...)
+	resultChannels = append(resultChannels, sendRest(5)...)
 
 	var results []Result
 

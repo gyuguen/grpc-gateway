@@ -11,7 +11,6 @@ import (
 	pb "github.com/grpc-gateway/pb/echo/v1"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	grpc_ratelimit "github.com/grpc-ecosystem/go-grpc-middleware/ratelimit"
 )
@@ -72,14 +71,24 @@ func serverREST(port, rpcPort int, errCh chan error) error {
 	// Note: Make sure the gRPC server is running properly and accessible
 	mux := runtime.NewServeMux()
 
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	conn, err := grpc.DialContext(
+		ctx,
+		rpcEndpoint,
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	)
 
-	if err := pb.RegisterEcoServiceHandlerFromEndpoint(ctx, mux, rpcEndpoint, opts); err != nil {
+	if err != nil {
 		return err
 	}
+
+	if err := pb.RegisterEcoServiceHandler(ctx, mux, conn); err != nil {
+		return err
+	}
+
 	go func() {
 		log.Infof("REST  server listening at %d...", port)
-		if err := http.ListenAndServe(fmt.Sprintf(":%d", port), limitREST(mux)); err != nil {
+		if err := http.ListenAndServe("0.0.0.0:8080", limitREST(mux)); err != nil {
 			errCh <- err
 			return
 		}
