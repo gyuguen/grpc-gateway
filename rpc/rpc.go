@@ -46,7 +46,7 @@ func serverGRPC(port int, errCh chan error) error {
 
 	pb.RegisterEcoServiceServer(svr, &EchoServer{})
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		return fmt.Errorf("failed to listen port for RPC: %w", err)
 	}
@@ -65,7 +65,7 @@ func serverGRPC(port int, errCh chan error) error {
 func serverREST(port, rpcPort int, errCh chan error) error {
 	ctx := context.Background()
 
-	rpcEndpoint := fmt.Sprintf("localhost:%d", rpcPort)
+	rpcEndpoint := fmt.Sprintf("127.0.0.1:%d", rpcPort)
 
 	// Register gRPC server endpoint
 	// Note: Make sure the gRPC server is running properly and accessible

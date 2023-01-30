@@ -3,6 +3,7 @@ package rpc
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -74,6 +75,28 @@ func TestLimiter(t *testing.T) {
 		log.Infof("tm(%s), cnt(%d)", tm, cnt)
 	}
 
+}
+
+func TestEcho(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	conn, err := grpc.Dial(
+		"20.24.34.167:8081",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	require.NoError(t, err)
+
+	cli := pb.NewEcoServiceClient(conn)
+
+	req := &pb.EchoRequest{
+		Name:   "123123123",
+		Bearer: "456789",
+	}
+	resp, err := cli.Echo(ctx, req)
+	require.NoError(t, err)
+	fmt.Println(resp)
 }
 
 func sendGrpc(count int) []chan Result {

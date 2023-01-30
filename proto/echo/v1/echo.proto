@@ -16,7 +16,7 @@ service EcoService {
 // The request message containing the user's name.
 message EchoRequest {
   string name = 1;
-  string barear = 2;
+  string bearer = 2;
 }
 
 // The response message containing the greetings

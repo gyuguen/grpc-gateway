@@ -84,7 +84,7 @@
         "name": {
           "type": "string"
         },
-        "barear": {
+        "bearer": {
           "type": "string"
         }
       },
